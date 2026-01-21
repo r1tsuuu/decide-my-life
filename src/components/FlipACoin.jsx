@@ -1,236 +1,243 @@
-import React, { useRef, useState } from 'react';
-import headsImage from '../assets/heads.jpg';
-import tailsImage from '../assets/tails.jpg';
-import audio from '../assets/coin-flip.mp3';
+import React, { useState, useRef, useEffect } from "react";
+import audioFile from "../assets/coin-flip.mp3";
 
 function FlipACoin() {
-	const [result, setResult] = useState(null);
-	const [coinType, setCoinType] = useState('Heads/Tails');
-	const [isFlipping, setIsFlipping] = useState(false);
-	const [currentImage, setCurrentImage] = useState(headsImage);
-	const [customOptions, setCustomOptions] = useState([]);
-	const [newOption, setNewOption] = useState('');
-	const [errorMessage, setErrorMessage] = useState('');
-	const [soundEnabled, setSoundEnabled] = useState(true);
-	const [flipDuration] = useState(120);
-	const [flips, setFlips] = useState(0);
-	const imgRef = useRef(null);
+  // State
+  const [mode, setMode] = useState("standard");
+  const [customValues, setCustomValues] = useState({
+    front: "Yes",
+    back: "No",
+  });
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [rotation, setRotation] = useState(0);
+  const [result, setResult] = useState(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
 
-	const coinOptions = {
-		'Heads/Tails': ['Heads', 'Tails'],
-		'Yes/No': ['Yes', 'No'],
-		Custom: customOptions,
-	};
+  const flipSound = useRef(new Audio(audioFile));
 
-	const flipSound = new Audio(audio);
+  const coinStyle = {
+    gold: "linear-gradient(135deg, #fceabb 0%, #f8b500 50%, #fceabb 100%)",
+    silver: "linear-gradient(135deg, #e0e0e0 0%, #999999 50%, #e0e0e0 100%)",
+    edge: "#b8860b",
+  };
 
-	const flipCoin = () => {
-		const outcomes = coinOptions[coinType];
+  const handleFlip = () => {
+    if (isFlipping) return;
 
-		imgRef.current = document.getElementById('img')
-		console.log(imgRef.current);
-		setTimeout(function () {
-			imgRef.current?.scrollIntoView({
-					behavior: "smooth",
-					block: "start",
-			});
-		}, 100);
+    const isHeads = Math.random() > 0.5;
+    const winningSide = isHeads ? "front" : "back";
+    const winningText =
+      mode === "standard"
+        ? isHeads
+          ? "Heads"
+          : "Tails"
+        : isHeads
+          ? customValues.front
+          : customValues.back;
+    if (soundEnabled) {
+      flipSound.current.currentTime = 0;
+      flipSound.current
+        .play()
+        .catch((e) => console.log("Audio play failed", e));
+    }
 
-		if (isFlipping) return;
+    const minSpins = 5;
+    const currentRot = rotation;
+    // Calculate the next target rotation to ensure it always spins forward
+    const baseRotation = Math.floor(currentRot / 360) * 360 + minSpins * 360;
+    const targetRotation = isHeads ? baseRotation + 360 : baseRotation + 180;
 
-		if (coinType === 'Custom' && customOptions.length < 2) {
-			setErrorMessage('Please add at least 2 custom options.');
-			return;
-		}
+    setIsFlipping(true);
+    setRotation(targetRotation);
+    setResult(null);
 
-		if (outcomes.length === 0) {
-			setErrorMessage('Please add options before flipping the coin.');
-			return;
-		}
+    setTimeout(() => {
+      setIsFlipping(false);
+      setResult(winningText);
+    }, 3000);
+  };
 
-		setErrorMessage('');
+  return (
+    <main className="min-h-[80vh] bg-slate-100 py-12 px-4 font-sans text-slate-800 flex items-center justify-center">
+      <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
+        {/* Header */}
+        <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-yellow-400 via-transparent to-transparent"></div>
+          <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-600 relative z-10">
+            Coin Toss
+          </h2>
+          <p className="text-slate-400 text-sm font-medium tracking-widest uppercase mt-2 relative z-10">
+            Binary decision engine
+          </p>
+        </div>
 
-		const count = Math.floor(Math.random() * 10) + 6;
-		setFlips(count);
-		setIsFlipping(true);
+        <div className="p-8 flex flex-col items-center">
+          {/* Controls Row */}
+          <div className="flex flex-wrap justify-center gap-4 mb-10 w-full">
+            <div className="bg-slate-100 p-1 rounded-full flex">
+              <button
+                onClick={() => setMode("standard")}
+                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${mode === "standard" ? "bg-white shadow-md text-slate-800" : "text-slate-400 hover:text-slate-600"}`}
+              >
+                Heads / Tails
+              </button>
+              <button
+                onClick={() => setMode("custom")}
+                className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${mode === "custom" ? "bg-white shadow-md text-slate-800" : "text-slate-400 hover:text-slate-600"}`}
+              >
+                Custom A / B
+              </button>
+            </div>
 
-		if (soundEnabled) {
-			flipSound.currentTime = 0;
-			flipSound.play().catch((error) => {
-				console.error('Error playing the coin flip sound:', error);
-			});
-		}
+            <button
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className={`px-4 py-2 rounded-full border text-sm font-bold transition-all flex items-center gap-2 ${
+                soundEnabled
+                  ? "bg-green-50 border-green-200 text-green-700"
+                  : "bg-slate-50 border-slate-200 text-slate-400"
+              }`}
+            >
+              {soundEnabled ? "🔊 Sound On" : "🔇 Sound Off"}
+            </button>
+          </div>
 
-		let flipCount = 0;
-		const singleMs = Math.min(Math.max(flipDuration, 100), 300);
-		const flipInterval = setInterval(() => {
-			setCurrentImage(prev => prev === headsImage ? tailsImage : headsImage);
-			flipCount++;
-			if (flipCount >= count) {
-				clearInterval(flipInterval);
-				const randomIndex = Math.floor(Math.random() * outcomes.length);
-				const finalResult = outcomes[randomIndex];
-				setResult(finalResult);
-				setCurrentImage(finalResult === 'Heads' ? headsImage : tailsImage);
-				setIsFlipping(false);
-				setTimeout(function () {
-					console.log(document.getElementById('result'))
-					let item = document.getElementById('result')
-					let offset = item.offsetTop-window.scrollY-400
-					window.scrollBy({top: offset, left: 0, behavior: 'smooth'})
-				}, 100);
-			}
-		}, singleMs);
-	};
+          <div
+            className={`w-full grid grid-cols-2 gap-4 mb-8 transition-all duration-500 overflow-hidden ${mode === "custom" ? "max-h-24 opacity-100" : "max-h-0 opacity-0"}`}
+          >
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-400 uppercase ml-2">
+                Front (Face)
+              </label>
+              <input
+                type="text"
+                value={customValues.front}
+                onChange={(e) =>
+                  setCustomValues({ ...customValues, front: e.target.value })
+                }
+                className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-yellow-400 focus:ring-0 text-center font-bold text-slate-700"
+                placeholder="Option A"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-400 uppercase ml-2">
+                Back (Tail)
+              </label>
+              <input
+                type="text"
+                value={customValues.back}
+                onChange={(e) =>
+                  setCustomValues({ ...customValues, back: e.target.value })
+                }
+                className="w-full p-3 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-yellow-400 focus:ring-0 text-center font-bold text-slate-700"
+                placeholder="Option B"
+              />
+            </div>
+          </div>
 
-	const addCustomOption = () => {
-		if (newOption.trim() === '') {
-			setErrorMessage('Option cannot be empty.');
-			return;
-		}
+          <div
+            className="relative w-64 h-64 my-4 perspective-container"
+            style={{ perspective: "1000px" }}
+          >
+            {/* The Coin */}
+            <div
+              className="w-full h-full relative"
+              style={{
+                transformStyle: "preserve-3d",
+                transform: `rotateY(${rotation}deg)`,
+                transition: isFlipping
+                  ? "transform 3s cubic-bezier(0.2, 0.8, 0.2, 1)"
+                  : "transform 0s",
+              }}
+            >
+              {/* FRONT FACE */}
+              <div
+                className="absolute inset-0 rounded-full flex items-center justify-center backface-hidden shadow-xl"
+                style={{
+                  background: coinStyle.gold,
+                  border: `8px solid ${coinStyle.edge}`,
+                  backfaceVisibility: "hidden",
+                  boxShadow: "inset 0 0 20px rgba(184, 134, 11, 0.5)",
+                }}
+              >
+                <div className="border-4 border-dashed border-yellow-600/30 rounded-full w-48 h-48 flex items-center justify-center p-4">
+                  <span className="text-2xl font-black text-yellow-900 uppercase text-center break-words leading-tight">
+                    {mode === "standard" ? "HEADS" : customValues.front}
+                  </span>
+                </div>
+              </div>
 
-		if (customOptions.includes(newOption.trim())) {
-			setErrorMessage('Option already exists.');
-			return;
-		}
+              {/* BACK FACE */}
+              <div
+                className="absolute inset-0 rounded-full flex items-center justify-center backface-hidden shadow-xl"
+                style={{
+                  background: coinStyle.silver,
+                  border: "8px solid #7f8c8d",
+                  backfaceVisibility: "hidden",
+                  transform: "rotateY(180deg)",
+                  boxShadow: "inset 0 0 20px rgba(0,0,0,0.2)",
+                }}
+              >
+                <div className="border-4 border-dashed border-slate-500/30 rounded-full w-48 h-48 flex items-center justify-center p-4">
+                  <span className="text-2xl font-black text-slate-700 uppercase text-center break-words leading-tight">
+                    {mode === "standard" ? "TAILS" : customValues.back}
+                  </span>
+                </div>
+              </div>
+            </div>
 
-		setCustomOptions([...customOptions, newOption.trim()]);
-		setNewOption('');
-		setErrorMessage('');
-	};
+            {/* Shadow underneath */}
+            <div
+              className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-40 h-4 bg-black/20 rounded-[100%] blur-md transition-all duration-1000"
+              style={{
+                transform: isFlipping
+                  ? "translateX(-50%) scale(0.5)"
+                  : "translateX(-50%) scale(1)",
+                opacity: isFlipping ? 0.2 : 0.5,
+              }}
+            ></div>
+          </div>
 
-	const removeCustomOption = (index) => {
-		setCustomOptions(customOptions.filter((_, i) => i !== index));
-	};
+          {/* Result Display */}
+          <div className="h-24 flex items-center justify-center mt-6">
+            {result && !isFlipping && (
+              <div className="animate-in zoom-in duration-300 text-center">
+                <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                  Result
+                </span>
+                <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-amber-600">
+                  {result}
+                </div>
+              </div>
+            )}
+            {isFlipping && (
+              <div className="text-slate-400 font-bold animate-pulse">
+                Defying gravity...
+              </div>
+            )}
+          </div>
 
-	return (
-		<main className="max-w-4xl mx-auto mt-12 px-4">
-			<div className="bg-base-100 shadow-lg rounded-2xl p-8 transition-shadow hover:shadow-xl">
-				<h2 className="text-4xl font-bold mb-6 text-center text-base-content">
-					Flip a Coin
-				</h2>
-				<p className="text-base-content/70 text-lg text-center mb-8">
-					Select a coin type, flip it, and let fate decide!
-				</p>
-
-				<div className="flex flex-col items-center gap-6 mb-8">
-					<select
-						value={coinType}
-						onChange={(e) => setCoinType(e.target.value)}
-						className="p-4 border-2 border-blue-500 rounded-lg text-base-content text-lg focus:outline-none focus:ring-4 focus:ring-blue-400 transition"
-						aria-label="Select Coin Type"
-					>
-						<option value="Heads/Tails">Heads/Tails</option>
-						<option value="Yes/No">Yes/No</option>
-						<option value="Custom">Custom</option>
-					</select>
-					<button
-						onClick={() => setSoundEnabled(!soundEnabled)}
-						className={`px-6 py-3 rounded-lg text-white text-lg font-semibold ${
-							soundEnabled ? 'bg-green-500' : 'bg-gray-500'
-						} hover:bg-green-600 transition`}
-						aria-label="Toggle Sound"
-					>
-						{soundEnabled ? '🔊 Sound On' : '🔇 Sound Off'}
-					</button>
-				</div>
-
-				{coinType === 'Custom' && (
-					<div className="w-full mb-8">
-						<h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
-							Customize Your Options
-						</h3>
-						<div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
-							<input
-								type="text"
-								value={newOption}
-								onChange={(e) => setNewOption(e.target.value)}
-								placeholder="Add a new option"
-								className="p-3 border rounded dark:bg-gray-700 dark:text-white flex-grow text-lg"
-								aria-label="Add Custom Option"
-							/>
-							<button
-								onClick={addCustomOption}
-								className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition text-lg"
-								aria-label="Add Option"
-							>
-								Add
-							</button>
-						</div>
-						{errorMessage && (
-							<p className="text-red-500 text-sm mb-4">{errorMessage}</p>
-						)}
-						<ul className="text-left">
-							{customOptions.map((option, index) => (
-								<li
-									key={index}
-									className="flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-3 rounded mb-2"
-								>
-									<span className="text-gray-800 dark:text-gray-100 text-lg">{option}</span>
-									<button
-										onClick={() => removeCustomOption(index)}
-										className="text-red-500 hover:text-red-700 text-lg"
-										aria-label={`Remove Option ${option}`}
-									>
-										Remove
-									</button>
-								</li>
-							))}
-						</ul>
-					</div>
-				)}
-
-				<div className="flex flex-col items-center gap-6 mt-8">
-					<button
-						onClick={flipCoin}
-						disabled={isFlipping}
-						className={`bg-blue-600 text-white px-8 py-4 rounded-lg text-2xl font-bold hover:bg-blue-700 transition ${
-							isFlipping ? 'opacity-50 cursor-not-allowed' : ''
-						}`}
-						aria-label="Flip the Coin"
-					>
-						{isFlipping ? (
-							<div className="flex items-center justify-center gap-2">
-								<span>Flipping...</span>
-								<div className="spinner border-t-4 border-white rounded-full w-6 h-6 animate-spin"></div>
-							</div>
-						) : (
-							'Flip the Coin'
-						)}
-					</button>
-
-					<div className="relative" style={{width:15+'rem'}}>
-						<img
-							id='img'
-							src={currentImage}
-							alt={result || 'Coin'}
-							className="w-full h-full object-cover rounded-full shadow-lg"
-							style={{
-								animation: isFlipping
-									? `flip ${flipDuration}ms ease-in-out ${flips}`
-									: 'none'
-							}}
-						/>
-					</div>
-				</div>
-
-				{result && !isFlipping && (
-					<div
-						className="mt-8 bg-base-100 p-6 rounded shadow-lg text-center"
-						aria-live="polite"
-						id='result'
-					>
-						<h3 className="text-2xl font-bold text-base-content">
-							Result: {result}
-						</h3>
-						<p className="text-base-content/70 text-lg">
-							You flipped a {coinType} coin.
-						</p>
-					</div>
-				)}
-			</div>
-		</main>
-	);
+          {/* Main Action Button */}
+          <button
+            onClick={handleFlip}
+            disabled={isFlipping}
+            className={`
+    w-full max-w-sm py-4 rounded-xl font-black text-xl tracking-wide uppercase transition-all transform
+    border-b-4 active:border-b-0 active:translate-y-1 mt-4
+    ${
+      isFlipping
+        ? "bg-slate-300 border-slate-400 text-slate-500 cursor-not-allowed"
+        : "bg-slate-900 border-black text-slate-50 hover:bg-slate-800 shadow-xl"
+    }
+  `}
+          >
+            <span className={isFlipping ? "opacity-50" : "opacity-100"}>
+              {isFlipping ? "Flipping..." : "FLIP COIN"}
+            </span>
+          </button>
+        </div>
+      </div>
+    </main>
+  );
 }
 
 export default FlipACoin;
