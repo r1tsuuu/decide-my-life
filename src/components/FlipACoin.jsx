@@ -64,7 +64,7 @@ function FlipACoin() {
         <div className="bg-slate-900 p-8 text-center relative overflow-hidden">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-yellow-400 via-transparent to-transparent"></div>
           <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-600 relative z-10">
-            Coin Toss
+            COIN TOSS
           </h2>
           <p className="text-slate-400 text-sm font-medium tracking-widest uppercase mt-2 relative z-10">
             Binary decision engine
