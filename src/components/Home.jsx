@@ -27,7 +27,7 @@ function Home() {
         <div className="p-8">
           <div className="grid grid-cols-3 gap-4 md:gap-6">
             <Link
-              to="/decide-my-life/spin-the-wheel"
+              to="/spin-the-wheel"
               className="group relative overflow-hidden bg-emerald-800 rounded-2xl border-b-8 border-emerald-950 shadow-2xl hover:-translate-y-2 hover:shadow-emerald-900/50 transition-all duration-300 active:border-b-0 active:translate-y-2 no-underline"
             >
               <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/felt.png')]"></div>
@@ -50,7 +50,7 @@ function Home() {
 
             {/* CARD 2: Flip a Coin */}
             <Link
-              to="/decide-my-life/flip-a-coin"
+              to="/flip-a-coin"
               className="group relative overflow-hidden bg-emerald-800 rounded-2xl border-b-8 border-emerald-950 shadow-2xl hover:-translate-y-2 hover:shadow-emerald-900/50 transition-all duration-300 active:border-b-0 active:translate-y-2 no-underline"
             >
               <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/felt.png')]"></div>
@@ -72,7 +72,7 @@ function Home() {
 
             {/* CARD 3: Roll Dice */}
             <Link
-              to="/decide-my-life/dice-roll"
+              to="/dice-roll"
               className="group relative overflow-hidden bg-emerald-800 rounded-2xl border-b-8 border-emerald-950 shadow-2xl hover:-translate-y-2 hover:shadow-emerald-900/50 transition-all duration-300 active:border-b-0 active:translate-y-2 no-underline"
             >
               <div className="absolute inset-0 opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/felt.png')]"></div>

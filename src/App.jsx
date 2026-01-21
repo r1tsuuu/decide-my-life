@@ -16,13 +16,10 @@ function App() {
       <div className="min-h-screen transition-colors duration-300 font-sans bg-base-300">
         <Navbar />
         <Routes>
-          <Route path="/decide-my-life/" element={<Home />} />
-          <Route
-            path="/decide-my-life/spin-the-wheel"
-            element={<SpinTheWheel />}
-          />
-          <Route path="/decide-my-life/flip-a-coin" element={<FlipACoin />} />
-          <Route path="/decide-my-life/dice-roll" element={<DiceRoll />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/spin-the-wheel" element={<SpinTheWheel />} />
+          <Route path="/flip-a-coin" element={<FlipACoin />} />
+          <Route path="/dice-roll" element={<DiceRoll />} />
         </Routes>
         <Footer />
       </div>
