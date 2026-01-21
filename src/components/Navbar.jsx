@@ -29,10 +29,7 @@ function Navbar() {
     <nav className="sticky top-0 z-50 w-full bg-white border-b border-slate-100 h-20 flex items-center">
       <div className="max-w-6xl mx-auto px-4 md:px-6 w-full flex justify-between items-center">
         <div className="flex-shrink-0">
-          <Link
-            to="/decide-my-life/"
-            className="no-underline flex flex-col items-start group"
-          >
+          <Link to="/" className="no-underline flex flex-col items-start group">
             <span className="text-lg md:text-xl font-[950] uppercase tracking-tighter text-slate-900 leading-none">
               Decide My Life
             </span>
@@ -44,16 +41,16 @@ function Navbar() {
 
         {/* Navigation Links - Removed 'hidden md:flex' so they show on mobile */}
         <div className="flex items-center space-x-2 md:space-x-6">
-          <NavLink to="/decide-my-life/" end className={getLinkClass}>
+          <NavLink to="/" end className={getLinkClass}>
             Home
           </NavLink>
-          <NavLink to="/decide-my-life/spin-the-wheel" className={getLinkClass}>
+          <NavLink to="/spin-the-wheel" className={getLinkClass}>
             Spin
           </NavLink>
-          <NavLink to="/decide-my-life/flip-a-coin" className={getLinkClass}>
+          <NavLink to="/flip-a-coin" className={getLinkClass}>
             Coin
           </NavLink>
-          <NavLink to="/decide-my-life/dice-roll" className={getLinkClass}>
+          <NavLink to="/dice-roll" className={getLinkClass}>
             Dice
           </NavLink>
         </div>
